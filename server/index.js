@@ -9,7 +9,7 @@ const port = Number(process.env.PORT || 3000);
 const indiaBounds = { west: 67, south: 6, east: 98, north: 38 };
 app.disable('x-powered-by');
 app.use(express.json({ limit: '32kb' }));
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '..'), { index: false, fallthrough: true }));
 
 app.get('/api/health', async (_req, res) => {
   try { await pool.query('SELECT PostGIS_Version()'); res.json({ status: 'ok', database: 'connected' }); }
@@ -30,7 +30,7 @@ app.get('/api/geocode', async (req, res) => {
   } catch (error) { res.status(502).json({ error: error.message || 'Geocoding service unavailable.' }); }
 });
 
-app.get('/api/routes', async (req, res) => {
+const getRoutes = async (req, res) => {
   const values = ['startLat', 'startLon', 'endLat', 'endLon'].map(key => Number(req.query[key]));
   if (values.some(value => !Number.isFinite(value)) || values[0] < 6 || values[0] > 38 || values[2] < 6 || values[2] > 38 || values[1] < 67 || values[1] > 98 || values[3] < 67 || values[3] > 98) return res.status(400).json({ error: 'Valid start and end coordinates within India are required.' });
   const [startLat, startLon, endLat, endLon] = values;
@@ -44,6 +44,18 @@ app.get('/api/routes', async (req, res) => {
     const routes = await Promise.all(data.routes.map(async route => ({ ...route, nearbyBarriers: await barriersNearLine(route.geometry.coordinates) })));
     res.json({ provider: 'OpenStreetMap routing service (foot profile)', accessibilityVerified: false, routes });
   } catch (error) { res.status(502).json({ error: error.message || 'Routing service unavailable.' }); }
+};
+app.get('/api/routes', getRoutes);
+app.get('/api/route', getRoutes);
+
+// Spatial API: returns standard GeoJSON Features in WGS84 (coordinates are longitude, latitude).
+app.get('/api/map', async (req, res) => {
+  const bbox = String(req.query.bbox || '67,6,98,38').split(',').map(Number);
+  if (bbox.length !== 4 || bbox.some(value => !Number.isFinite(value)) || bbox[0] < 67 || bbox[2] > 98 || bbox[1] < 6 || bbox[3] > 38 || bbox[0] >= bbox[2] || bbox[1] >= bbox[3]) return res.status(400).json({ error: 'bbox must be west,south,east,north within India.' });
+  try {
+    const reports = await listNearbyBarriers({ west: bbox[0], south: bbox[1], east: bbox[2], north: bbox[3] });
+    res.type('application/geo+json').json({ type: 'FeatureCollection', features: reports.map(report => ({ type: 'Feature', id: report.id, geometry: report.geometry, properties: { category: report.category, description: report.description, location: report.location, createdAt: report.created_at, verified: report.verified } })) });
+  } catch { res.status(503).json({ error: 'Map data is unavailable.' }); }
 });
 
 app.get('/api/barriers', async (req, res) => {
@@ -60,6 +72,11 @@ app.post('/api/barriers', async (req, res) => {
   catch { res.status(503).json({ error: 'Could not save the barrier report.' }); }
 });
 
+app.use('/api', (_req, res) => res.status(404).json({ error: 'API endpoint not found.' }));
+app.get('*', (req, res, next) => {
+  if (path.extname(req.path)) return res.status(404).type('text/plain').send('Asset not found.');
+  res.sendFile(path.join(__dirname, '..', 'index.html'), error => { if (error) next(error); });
+});
 app.use((error, _req, res, _next) => { console.error(error); res.status(500).json({ error: 'Internal server error.' }); });
 const server = app.listen(port, () => console.log(`PathProof listening on port ${port}`));
 async function shutdown() { server.close(); await pool.end(); process.exit(0); }

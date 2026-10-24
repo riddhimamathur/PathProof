@@ -1,5 +1,5 @@
 /* PATH PROOFS — India-focused map, external pedestrian routing, PostGIS reports. */
-const map = L.map("map", { minZoom: 4 }).setView([22.9734, 78.6569], 5);
+const map = L.map("map", { minZoom: 4 }).setView([20.5937, 78.9629], 5);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap contributors</a>", maxZoom: 19
 }).addTo(map);

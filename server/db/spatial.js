@@ -4,7 +4,7 @@ async function listNearbyBarriers({ west, south, east, north }) {
   const { rows } = await pool.query(
     `SELECT id, category, description, location_label AS location,
             ST_Y(geom) AS latitude, ST_X(geom) AS longitude,
-            created_at, verified
+            ST_AsGeoJSON(geom)::json AS geometry, created_at, verified
        FROM barrier_reports
       WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
       ORDER BY created_at DESC LIMIT 500`,
@@ -18,7 +18,8 @@ async function createBarrier({ category, description, location, latitude, longit
     `INSERT INTO barrier_reports (category, description, location_label, geom)
      VALUES ($1, $2, $3, ST_SetSRID(ST_MakePoint($4, $5), 4326))
      RETURNING id, category, description, location_label AS location,
-               ST_Y(geom) AS latitude, ST_X(geom) AS longitude, created_at, verified`,
+               ST_Y(geom) AS latitude, ST_X(geom) AS longitude,
+               ST_AsGeoJSON(geom)::json AS geometry, created_at, verified`,
     [category, description || '', location, longitude, latitude]
   );
   return rows[0];
