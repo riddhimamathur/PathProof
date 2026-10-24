@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#18181B">
+    <meta name="description" content="PATH PROOFS helps people explore pedestrian routes in India with accessibility information and community-reported barriers.">
+
+    <title>PATH PROOFS | Accessible Navigation for India</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"
+    >
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="site-header" id="home">
+
+        <div class="header-inner">
+
+            <a class="brand" href="#home" aria-label="PATH PROOFS home">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">PATH PROOFS</span>
+            </a>
+
+            <nav class="main-nav" aria-label="Main navigation">
+                <a href="#planner">Plan a route</a>
+                <a href="#map-section">Explore map</a>
+                <a href="#barrier-report-section">Report a barrier</a>
+            </nav>
+
+        </div>
+
+        <div class="hero">
+
+            <p class="hero-eyebrow">
+                ACCESSIBLE MOBILITY FOR EVERYONE
+            </p>
+
+            <h1>
+                Every path.<br>
+                Every ability.
+            </h1>
+
+            <p class="hero-description">
+                Explore pedestrian routes across India with accessibility
+                information and community-reported barriers.
+            </p>
+
+            <a class="hero-link" href="#planner">
+                Plan your journey
+                <span aria-hidden="true">→</span>
+            </a>
+
+            <p class="hero-disclaimer">
+                Accessibility information is a prototype and may not
+                reflect real-world conditions.
+            </p>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main id="main-content">
+
+        <a class="skip-link" href="#main-content">
+            Skip to main content
+        </a>
+
+
+        <!-- ROUTE PLANNER -->
+
+        <section class="card planner-card" id="planner">
+
+            <div class="section-heading">
+                <p class="section-eyebrow">YOUR JOURNEY</p>
+                <h2>Plan your route</h2>
+                <p>
+                    Enter your starting point and destination to explore
+                    available pedestrian routes.
+                </p>
+            </div>
+
+            <form id="routeForm" class="route-form" onsubmit="return false;">
+
+                <div class="form-field">
+                    <label for="start">Starting point</label>
+
+                    <input
+                        id="start"
+                        name="start"
+                        type="text"
+                        value="India Gate, New Delhi"
+                        placeholder="Enter starting point"
+                        autocomplete="street-address"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="destination">Destination</label>
+
+                    <input
+                        id="destination"
+                        name="destination"
+                        type="text"
+                        value="Connaught Place, New Delhi"
+                        placeholder="Where do you want to go?"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="profile">Accessibility profile</label>
+
+                    <select id="profile" name="profile">
+                        <option value="wheelchair">Wheelchair user</option>
+                        <option value="blind">Blind / Low Vision</option>
+                        <option value="elderly">Elderly pedestrian</option>
+                        <option value="general">General pedestrian</option>
+                    </select>
+                </div>
+
+                <p id="profileMessage" class="info-message" aria-live="polite">
+                    Prioritizing step-free routes and smooth footpaths.
+                </p>
+
+                <button id="routeButton" type="button">
+                    Find accessible route
+                    <span aria-hidden="true">→</span>
+                </button>
+
+            </form>
+
+            <p id="result" class="status-message" role="status" aria-live="polite"></p>
+
+            <div id="routeResults" aria-label="Route options" aria-live="polite"></div>
+
+            <p class="note">
+                <strong>Important:</strong> Route availability and accessibility
+                are not guaranteed. Verify conditions before travelling.
+            </p>
+
+        </section>
+
+
+        <!-- INDIA MAP -->
+
+        <section class="card map-card" id="map-section">
+
+            <div class="section-heading">
+                <p class="section-eyebrow">DISCOVER YOUR SURROUNDINGS</p>
+                <h2>Explore the India map</h2>
+                <p>
+                    Explore the map and view route information for your journey.
+                </p>
+            </div>
+
+            <div class="map-container">
+                <div
+                    id="map"
+                    role="region"
+                    aria-label="Interactive map of India. Use the map controls to zoom and explore."
+                ></div>
+            </div>
+
+            <p class="note">
+                Map data © OpenStreetMap contributors.
+                Sample barriers are illustrative and may not be verified reports.
+            </p>
+
+        </section>
+
+
+        <!-- ROUTE DATA CONFIDENCE -->
+
+        <section class="card confidence-card" id="confidence-section">
+
+            <div class="section-heading">
+                <p class="section-eyebrow">INFORMATION QUALITY</p>
+                <h2>Route data confidence</h2>
+                <p>
+                    Review the prototype's route data confidence indicators.
+                    These are not guarantees of real-world accessibility.
+                </p>
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <span>Demonstration confidence</span>
+                    <strong id="confidenceScore">--</strong>
+                </div>
+
+                <div class="stat">
+                    <span>Segments without recent imagery</span>
+                    <strong id="outdatedSegments">--</strong>
+                </div>
+
+            </div>
+
+            <button id="confidenceButton" type="button" class="secondary">
+                Check confidence
+            </button>
+
+            <p id="confidenceMessage" aria-live="polite">
+                Loading demonstration statistics...
+            </p>
+
+            <p id="confidenceResult" class="status-message" aria-live="polite"></p>
+
+        </section>
+
+
+        <!-- COMMUNITY BARRIER REPORTING -->
+
+        <section
+            class="card report-card"
+            id="barrier-report-section"
+        >
+
+            <div class="section-heading">
+                <p class="section-eyebrow">HELP IMPROVE ACCESSIBILITY</p>
+                <h2>Report an accessibility barrier</h2>
+                <p>
+                    Report a footpath problem or obstacle to help make
+                    accessibility information more useful.
+                </p>
+            </div>
+
+            <form id="barrierForm">
+
+                <div class="form-field">
+                    <label for="barrier">Barrier type</label>
+
+                    <select id="barrier" name="barrier" required>
+                        <option value="Blocked footpath">Blocked footpath</option>
+                        <option value="Missing kerb ramp">Missing kerb ramp</option>
+                        <option value="Steps or stairs">Steps or stairs</option>
+                        <option value="Broken footpath">Broken footpath</option>
+                        <option value="Obstructing pole">Obstructing pole</option>
+                        <option value="Parked vehicle">Parked vehicle</option>
+                    </select>
+                </div>
+
+                <div class="form-field">
+                    <label for="location">Location or landmark</label>
+
+                    <input
+                        id="location"
+                        name="location"
+                        type="text"
+                        placeholder="e.g. India Gate, New Delhi"
+                        autocomplete="street-address"
+                        required
+                    >
+                </div>
+
+                <div class="form-field">
+                    <label for="barrierPhoto">Photo (optional)</label>
+
+                    <input
+                        id="barrierPhoto"
+                        name="barrierPhoto"
+                        type="file"
+                        accept="image/*"
+                    >
+
+                    <p class="field-help">
+                        In this prototype, photos are not uploaded or saved.
+                    </p>
+                </div>
+
+                <button id="reportButton" type="submit">
+                    Submit barrier report
+                </button>
+
+            </form>
+
+            <p
+                id="reportResult"
+                class="status-message"
+                role="status"
+                aria-live="polite"
+            ></p>
+
+            <div class="reports-heading">
+                <h3>Submitted reports</h3>
+                <p>
+                    Reports may be unverified and should not be treated
+                    as confirmed current conditions.
+                </p>
+            </div>
+
+            <div id="reportList"></div>
+
+            <p class="note">
+                Demo reports are stored locally in this browser and may expire.
+                They are not automatically shared with other users.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer class="site-footer">
+
+        <div class="footer-inner">
+
+            <a class="brand footer-brand" href="#home">
+                <span class="brand-mark" aria-hidden="true"></span>
+                <span class="brand-name">PATH PROOFS</span>
+            </a>
+
+            <p>
+                Building more accessible streets, one journey at a time.
+            </p>
+
+            <a href="#home">Back to top ↑</a>
+
+        </div>
+
+        <p class="footer-disclaimer">
+            PATH PROOFS is an accessibility navigation prototype.
+            Always use your judgement and verify route conditions.
+        </p>
+
+    </footer>
+
+
+    <!-- ================= SCRIPTS ================= -->
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
