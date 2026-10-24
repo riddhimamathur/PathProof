@@ -180,49 +180,8 @@
             </div>
 
             <p class="note">
-                Map data © OpenStreetMap contributors.
-                Sample barriers are illustrative and may not be verified reports.
+                Map data © OpenStreetMap contributors. Barrier markers are database-backed community reports and may be unverified.
             </p>
-
-        </section>
-
-
-        <!-- ROUTE DATA CONFIDENCE -->
-
-        <section class="card confidence-card" id="confidence-section">
-
-            <div class="section-heading">
-                <p class="section-eyebrow">INFORMATION QUALITY</p>
-                <h2>Route data confidence</h2>
-                <p>
-                    Review the prototype's route data confidence indicators.
-                    These are not guarantees of real-world accessibility.
-                </p>
-            </div>
-
-            <div class="stats">
-
-                <div class="stat">
-                    <span>Demonstration confidence</span>
-                    <strong id="confidenceScore">--</strong>
-                </div>
-
-                <div class="stat">
-                    <span>Segments without recent imagery</span>
-                    <strong id="outdatedSegments">--</strong>
-                </div>
-
-            </div>
-
-            <button id="confidenceButton" type="button" class="secondary">
-                Check confidence
-            </button>
-
-            <p id="confidenceMessage" aria-live="polite">
-                Loading demonstration statistics...
-            </p>
-
-            <p id="confidenceResult" class="status-message" aria-live="polite"></p>
 
         </section>
 
@@ -310,8 +269,7 @@
             <div id="reportList"></div>
 
             <p class="note">
-                Demo reports are stored locally in this browser and may expire.
-                They are not automatically shared with other users.
+                Reports are stored in the configured PostGIS database and visible to map users. Community submissions are not verified.
             </p>
 
         </section>
@@ -350,7 +308,6 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
     <script src="script.js"></script>
 
